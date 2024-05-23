@@ -25,7 +25,7 @@ def tokenize(inp):
         >>> tokenize('(+ (- u v) (* x y))')
         ['(', '+', '(', '-', 'u', 'v', ')', '(', '*', 'x', 'y', ')', ')']
     """
-    def dropable(x): return x not in [None, ' ', '']
+    def dropable(x): return x not in [None, ' ', '', '\n']
     return list(filter(dropable, re.split(delimiters_re, inp)))
 
 def parse(inp):

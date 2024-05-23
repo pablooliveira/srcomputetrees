@@ -1,4 +1,5 @@
-"""
+>>> from computetree import parse, evaluate
+
 Martingale length grows with n for the recursive sum and log2(n) for the
 pairwise sum.
 
@@ -95,10 +96,10 @@ v = (a0 + a1 + a2 + a3)*(b0 + b1 + b2 + b3)
 K = (Abs(a0) + Abs(a1) + Abs(a2) + Abs(a3))*(Abs(b0) + Abs(b1) + Abs(b2) + Abs(b3))/(Abs(a0 + a1 + a2 + a3)*Abs(b0 + b1 + b2 + b3))
 
 
->>> conv2 = parse('(+ (+ (+ (+ (* a0 b3) (* a0 b2)) (+ (* a0 b1) (* a0 b0)))' +  \
-                        '(+ (+ (* a1 b3) (* a1 b2)) (+ (* a1 b1) (* a1 b0))))' + \
-                     '(+ (+ (+ (* a2 b3) (* a2 b2)) (+ (* a2 b1) (* a2 b0)))' +  \
-                        '(+ (+ (* a3 b3) (* a3 b2)) (+ (* a3 b1) (* a3 b0)))))')
+>>> conv2 = parse('''(+ (+ (+ (+ (* a0 b3) (* a0 b2)) (+ (* a0 b1) (* a0 b0)))
+...                        (+ (+ (* a1 b3) (* a1 b2)) (+ (* a1 b1) (* a1 b0))))
+...                     (+ (+ (+ (* a2 b3) (* a2 b2)) (+ (* a2 b1) (* a2 b0)))
+...                        (+ (+ (* a3 b3) (* a3 b2)) (+ (* a3 b1) (* a3 b0)))))''')
 >>> evaluate(conv2)
 m = 5
 v = (a0 + a1 + a2 + a3)*(b0 + b1 + b2 + b3)
@@ -112,23 +113,15 @@ v = (b0 + b1 + b2 + b3)*(a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7)
 K = (Abs(b0) + Abs(b1) + Abs(b2) + Abs(b3))*(Abs(a0) + Abs(a1) + Abs(a2) + Abs(a3) + Abs(a4) + Abs(a5) + Abs(a6) + Abs(a7))/(Abs(b0 + b1 + b2 + b3)*Abs(a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7))
 
 
->>> conv4 = parse('(+ (+ (+ (+ (+ (* a0 b3) (* a0 b2)) (+ (* a0 b1) (* a0 b0)))' +  \
-                         '(+ (+ (* a1 b3) (* a1 b2)) (+ (* a1 b1) (* a1 b0))))' + \
-                      '(+ (+ (+ (* a2 b3) (* a2 b2)) (+ (* a2 b1) (* a2 b0)))' +  \
-                         '(+ (+ (* a3 b3) (* a3 b2)) (+ (* a3 b1) (* a3 b0)))))' + \
-                      '(+ (+ (+ (+ (* a4 b3) (* a4 b2)) (+ (* a4 b1) (* a4 b0)))' +  \
-                         '(+ (+ (* a5 b3) (* a5 b2)) (+ (* a5 b1) (* a5 b0))))' + \
-                      '(+ (+ (+ (* a6 b3) (* a6 b2)) (+ (* a6 b1) (* a6 b0)))' +  \
-                         '(+ (+ (* a7 b3) (* a7 b2)) (+ (* a7 b1) (* a7 b0))))))')
+>>> conv4 = parse('''(+ (+ (+ (+ (+ (* a0 b3) (* a0 b2)) (+ (* a0 b1) (* a0 b0)))
+...                           (+ (+ (* a1 b3) (* a1 b2)) (+ (* a1 b1) (* a1 b0))))
+...                        (+ (+ (+ (* a2 b3) (* a2 b2)) (+ (* a2 b1) (* a2 b0)))
+...                           (+ (+ (* a3 b3) (* a3 b2)) (+ (* a3 b1) (* a3 b0)))))
+...                     (+ (+ (+ (+ (* a4 b3) (* a4 b2)) (+ (* a4 b1) (* a4 b0)))
+...                           (+ (+ (* a5 b3) (* a5 b2)) (+ (* a5 b1) (* a5 b0))))
+...                        (+ (+ (+ (* a6 b3) (* a6 b2)) (+ (* a6 b1) (* a6 b0)))
+...                           (+ (+ (* a7 b3) (* a7 b2)) (+ (* a7 b1) (* a7 b0))))))''')
 >>> evaluate(conv4)
 m = 6
 v = (b0 + b1 + b2 + b3)*(a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7)
 K = (Abs(a0*b0) + Abs(a0*b1) + Abs(a0*b2) + Abs(a0*b3) + Abs(a1*b0) + Abs(a1*b1) + Abs(a1*b2) + Abs(a1*b3) + Abs(a2*b0) + Abs(a2*b1) + Abs(a2*b2) + Abs(a2*b3) + Abs(a3*b0) + Abs(a3*b1) + Abs(a3*b2) + Abs(a3*b3) + Abs(a4*b0) + Abs(a4*b1) + Abs(a4*b2) + Abs(a4*b3) + Abs(a5*b0) + Abs(a5*b1) + Abs(a5*b2) + Abs(a5*b3) + Abs(a6*b0) + Abs(a6*b1) + Abs(a6*b2) + Abs(a6*b3) + Abs(a7*b0) + Abs(a7*b1) + Abs(a7*b2) + Abs(a7*b3))/Abs(a0*b0 + a0*b1 + a0*b2 + a0*b3 + a1*b0 + a1*b1 + a1*b2 + a1*b3 + a2*b0 + a2*b1 + a2*b2 + a2*b3 + a3*b0 + a3*b1 + a3*b2 + a3*b3 + a4*b0 + a4*b1 + a4*b2 + a4*b3 + a5*b0 + a5*b1 + a5*b2 + a5*b3 + a6*b0 + a6*b1 + a6*b2 + a6*b3 + a7*b0 + a7*b1 + a7*b2 + a7*b3)
-
-"""
-
-from computetree import evaluate, parse
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
