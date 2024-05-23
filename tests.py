@@ -1,4 +1,7 @@
 """
+Martingale length grows with n for the recursive sum and log2(n) for the
+pairwise sum.
+
 >>> recursive = parse('(+ (+ (+ a1 a2) a3) a4)')
 >>> evaluate(recursive)
 m = 3
@@ -11,6 +14,8 @@ m = 2
 v = a1 + a2 + a3 + a4
 K = (Abs(a1) + Abs(a2) + Abs(a3) + Abs(a4))/Abs(a1 + a2 + a3 + a4)
 
+We can compare various polynomial evaluation schemes
+
 >>> poly = parse('(+ a0 (+ (* a1 x) (+ (* (* a2 x) x) (* (* (* a3 x) x) x))))')
 >>> evaluate(poly)
 m = 6
@@ -22,6 +27,8 @@ K = (Abs(a0) + Abs(a1*x) + Abs(a2*x**2) + Abs(a3*x**3))/Abs(a0 + a1*x + a2*x**2 
 m = 6
 v = a0 + a1*x + a2*x**2 + a3*x**3
 K = (Abs(a0)*Abs(a2 + a3*x)*Abs(a1 + a2*x + a3*x**2) + Abs(a1)*Abs(a2 + a3*x)*Abs(a1*x + a2*x**2 + a3*x**3) + Abs(a2)*Abs(a2*x + a3*x**2)*Abs(a1*x + a2*x**2 + a3*x**3) + Abs(a3*x)*Abs(a2*x + a3*x**2)*Abs(a1*x + a2*x**2 + a3*x**3))/(Abs(a2 + a3*x)*Abs(a1 + a2*x + a3*x**2)*Abs(a0 + a1*x + a2*x**2 + a3*x**3))
+
+The library allows for numerical evaluation of the symbolic values.
 
 >>> factored1 = parse('(* (+ x 8) (* (+ x 5) (* (+ x 3) (- x 2))))')
 >>> E1 = evaluate(factored1)
@@ -67,7 +74,6 @@ K = (Abs(a0)*Abs(a2 + a3*x)*Abs(a1 + a2*x + a3*x**2) + Abs(a1)*Abs(a2 + a3*x)*Ab
 >>> E4.K.subs('x', -2.999)
 24691.5397577340
 
-
 >>> tcheb1 = parse('(- (+ (- (+ (- (* (* (* (* (* (* (* (* (* (* (* 1024 x) x) x) x) x) x) x) x) x) x) x) (* (* (* (* (* (* (* (* (* 2816 x) x) x) x) x) x) x) x) x)) (* (* (* (* (* (* (* 2816 x) x) x) x) x) x) x)) (* (* (* (* (* 1232 x) x) x) x) x)) (* (* (* 220 x) x) x)) (* 11 x))')
 >>> E5 = evaluate(tcheb1)
 >>> E5.m
@@ -76,6 +82,53 @@ K = (Abs(a0)*Abs(a2 + a3*x)*Abs(a1 + a2*x + a3*x**2) + Abs(a1)*Abs(a2 + a3*x)*Ab
 199.000000000000
 >>> E5.K.subs('x', .999)
 9140.08093288036
+
+There is no advantage for martingale length in distributing convolutions
+
+When multiplying two sums of lengths n and m, the martingale length is 1 + log2(n) + log2(m)
+When distributing, we have n*m terms to add, thus, the martingale length is 1 + log2(n*m) = 1 + log2(n) + log2(m)
+
+>>> conv1 = parse('(* (+ (+ a0 a1) (+ a2 a3)) (+ (+ b0 b1) (+ b2 b3)))')
+>>> evaluate(conv1)
+m = 5
+v = (a0 + a1 + a2 + a3)*(b0 + b1 + b2 + b3)
+K = (Abs(a0) + Abs(a1) + Abs(a2) + Abs(a3))*(Abs(b0) + Abs(b1) + Abs(b2) + Abs(b3))/(Abs(a0 + a1 + a2 + a3)*Abs(b0 + b1 + b2 + b3))
+
+
+>>> conv2 = parse('(+ (+ (+ (+ (* a0 b3) (* a0 b2)) (+ (* a0 b1) (* a0 b0)))' +  \
+                        '(+ (+ (* a1 b3) (* a1 b2)) (+ (* a1 b1) (* a1 b0))))' + \
+                     '(+ (+ (+ (* a2 b3) (* a2 b2)) (+ (* a2 b1) (* a2 b0)))' +  \
+                        '(+ (+ (* a3 b3) (* a3 b2)) (+ (* a3 b1) (* a3 b0)))))')
+>>> evaluate(conv2)
+m = 5
+v = (a0 + a1 + a2 + a3)*(b0 + b1 + b2 + b3)
+K = (Abs(a0*b0) + Abs(a0*b1) + Abs(a0*b2) + Abs(a0*b3) + Abs(a1*b0) + Abs(a1*b1) + Abs(a1*b2) + Abs(a1*b3) + Abs(a2*b0) + Abs(a2*b1) + Abs(a2*b2) + Abs(a2*b3) + Abs(a3*b0) + Abs(a3*b1) + Abs(a3*b2) + Abs(a3*b3))/Abs(a0*b0 + a0*b1 + a0*b2 + a0*b3 + a1*b0 + a1*b1 + a1*b2 + a1*b3 + a2*b0 + a2*b1 + a2*b2 + a2*b3 + a3*b0 + a3*b1 + a3*b2 + a3*b3)
+
+
+>>> conv3 = parse('(* (+ (+ (+ a0 a1) (+ a2 a3)) (+ (+ a4 a5) (+ a6 a7))) (+ (+ b0 b1) (+ b2 b3)))')
+>>> evaluate(conv3)
+m = 6
+v = (b0 + b1 + b2 + b3)*(a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7)
+K = (Abs(b0) + Abs(b1) + Abs(b2) + Abs(b3))*(Abs(a0) + Abs(a1) + Abs(a2) + Abs(a3) + Abs(a4) + Abs(a5) + Abs(a6) + Abs(a7))/(Abs(b0 + b1 + b2 + b3)*Abs(a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7))
+
+
+>>> conv4 = parse('(+ (+ (+ (+ (+ (* a0 b3) (* a0 b2)) (+ (* a0 b1) (* a0 b0)))' +  \
+                         '(+ (+ (* a1 b3) (* a1 b2)) (+ (* a1 b1) (* a1 b0))))' + \
+                      '(+ (+ (+ (* a2 b3) (* a2 b2)) (+ (* a2 b1) (* a2 b0)))' +  \
+                         '(+ (+ (* a3 b3) (* a3 b2)) (+ (* a3 b1) (* a3 b0)))))' + \
+                      '(+ (+ (+ (+ (* a4 b3) (* a4 b2)) (+ (* a4 b1) (* a4 b0)))' +  \
+                         '(+ (+ (* a5 b3) (* a5 b2)) (+ (* a5 b1) (* a5 b0))))' + \
+                      '(+ (+ (+ (* a6 b3) (* a6 b2)) (+ (* a6 b1) (* a6 b0)))' +  \
+                         '(+ (+ (* a7 b3) (* a7 b2)) (+ (* a7 b1) (* a7 b0))))))')
+>>> evaluate(conv4)
+m = 6
+v = (b0 + b1 + b2 + b3)*(a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7)
+K = (Abs(a0*b0) + Abs(a0*b1) + Abs(a0*b2) + Abs(a0*b3) + Abs(a1*b0) + Abs(a1*b1) + Abs(a1*b2) + Abs(a1*b3) + Abs(a2*b0) + Abs(a2*b1) + Abs(a2*b2) + Abs(a2*b3) + Abs(a3*b0) + Abs(a3*b1) + Abs(a3*b2) + Abs(a3*b3) + Abs(a4*b0) + Abs(a4*b1) + Abs(a4*b2) + Abs(a4*b3) + Abs(a5*b0) + Abs(a5*b1) + Abs(a5*b2) + Abs(a5*b3) + Abs(a6*b0) + Abs(a6*b1) + Abs(a6*b2) + Abs(a6*b3) + Abs(a7*b0) + Abs(a7*b1) + Abs(a7*b2) + Abs(a7*b3))/Abs(a0*b0 + a0*b1 + a0*b2 + a0*b3 + a1*b0 + a1*b1 + a1*b2 + a1*b3 + a2*b0 + a2*b1 + a2*b2 + a2*b3 + a3*b0 + a3*b1 + a3*b2 + a3*b3 + a4*b0 + a4*b1 + a4*b2 + a4*b3 + a5*b0 + a5*b1 + a5*b2 + a5*b3 + a6*b0 + a6*b1 + a6*b2 + a6*b3 + a7*b0 + a7*b1 + a7*b2 + a7*b3)
+
 """
 
 from computetree import evaluate, parse
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
