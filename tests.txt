@@ -1,7 +1,9 @@
+# vim: set ft=python:
+
 >>> from computetree import parse, evaluate
 
-Martingale length grows with n for the recursive sum and log2(n) for the
-pairwise sum.
+# Martingale length grows with n for the recursive sum and log2(n) for the
+# pairwise sum.
 
 >>> recursive = parse('(+ (+ (+ a1 a2) a3) a4)')
 >>> evaluate(recursive)
@@ -15,7 +17,7 @@ m = 2
 v = a1 + a2 + a3 + a4
 K = (Abs(a1) + Abs(a2) + Abs(a3) + Abs(a4))/Abs(a1 + a2 + a3 + a4)
 
-We can compare various polynomial evaluation schemes
+# We can compare various polynomial evaluation schemes
 
 >>> poly = parse('(+ a0 (+ (* a1 x) (+ (* (* a2 x) x) (* (* (* a3 x) x) x))))')
 >>> evaluate(poly)
@@ -29,7 +31,7 @@ m = 6
 v = a0 + a1*x + a2*x**2 + a3*x**3
 K = (Abs(a0)*Abs(a2 + a3*x)*Abs(a1 + a2*x + a3*x**2) + Abs(a1)*Abs(a2 + a3*x)*Abs(a1*x + a2*x**2 + a3*x**3) + Abs(a2)*Abs(a2*x + a3*x**2)*Abs(a1*x + a2*x**2 + a3*x**3) + Abs(a3*x)*Abs(a2*x + a3*x**2)*Abs(a1*x + a2*x**2 + a3*x**3))/(Abs(a2 + a3*x)*Abs(a1 + a2*x + a3*x**2)*Abs(a0 + a1*x + a2*x**2 + a3*x**3))
 
-The library allows for numerical evaluation of the symbolic values.
+# The library allows for numerical evaluation of the symbolic values.
 
 >>> factored1 = parse('(* (+ x 8) (* (+ x 5) (* (+ x 3) (- x 2))))')
 >>> E1 = evaluate(factored1)
@@ -84,10 +86,10 @@ The library allows for numerical evaluation of the symbolic values.
 >>> E5.K.subs('x', .999)
 9140.08093288036
 
-There is no advantage for martingale length in distributing convolutions
+# There is no advantage for martingale length in distributing convolutions
 
-When multiplying two sums of lengths n and m, the martingale length is 1 + log2(n) + log2(m)
-When distributing, we have n*m terms to add, thus, the martingale length is 1 + log2(n*m) = 1 + log2(n) + log2(m)
+# When multiplying two sums of lengths n and m, the martingale length is 1 + log2(n) + log2(m)
+# When distributing, we have n*m terms to add, thus, the martingale length is 1 + log2(n*m) = 1 + log2(n) + log2(m)
 
 >>> conv1 = parse('(* (+ (+ a0 a1) (+ a2 a3)) (+ (+ b0 b1) (+ b2 b3)))')
 >>> evaluate(conv1)
