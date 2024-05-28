@@ -25,8 +25,8 @@ def tokenize(inp):
         >>> tokenize('(+ (- u v) (* x y))')
         ['(', '+', '(', '-', 'u', 'v', ')', '(', '*', 'x', 'y', ')', ')']
     """
-    def dropable(x): return x not in [None, ' ', '', '\n']
-    return list(filter(dropable, re.split(delimiters_re, inp)))
+    def _dropable(x): return x not in [None, '', ' ', '\n']
+    return list(filter(_dropable, re.split(delimiters_re, inp)))
 
 def parse(inp):
     """
@@ -67,40 +67,54 @@ class Exp(namedtuple('Exp', ['v', 'm', 'K'])):
 
 
 
-def evaluate(tree):
+def evaluate(tree, symbolic=True):
     """
     evaluates a parsed s-expression returning an Exp namedtuple
     K and m are evaluated recursively as shown in
         https://theses.hal.science/tel-04397409
 
-    Computations are symbolic thanks to the SymPy library.
+    Computations are symbolic thanks to the SymPy library (if flag is True).
     """
+
+    if symbolic:
+        def _symb(f):
+            return factor(f())
+    else:
+        def _symb(f): None
+
     def _evaluate_v(v):
-        return Exp(v=Symbol(v) if isinstance(v, str) else Float(v),
+        return Exp(v=_symb(lambda: Symbol(v) if isinstance(v, str) else Float(v)),
                    m=0,
-                   K=Integer(1))
+                   K=_symb(lambda: Integer(1)))
 
     def _evaluate_op(op, sx, sy):
-        x = evaluate(sx)
-        y = evaluate(sy)
+        x = evaluate(sx, symbolic)
+        y = evaluate(sy, symbolic)
         match op:
             case '*':
-                return Exp(v=x.v * y.v,
+                return Exp(v=_symb(lambda: x.v * y.v),
                            m=x.m + y.m + 1,
-                           K=x.K * y.K)
+                           K=_symb(lambda: x.K * y.K))
             case '+':
-                return Exp(v=factor(x.v + y.v),
+                return Exp(v=_symb(lambda: x.v + y.v),
                            m=max(x.m, y.m) + 1,
-                           K=factor(
+                           K=_symb(lambda:
                                Abs(x.v)/Abs(x.v + y.v) * x.K +
                                Abs(y.v)/Abs(x.v + y.v) * y.K))
             case '-':
-                return Exp(v=factor(x.v - y.v),
+                return Exp(v=_symb(lambda: x.v - y.v),
                            m=max(x.m, y.m) + 1,
-                           K=factor(
+                           K=_symb(lambda:
                                Abs(x.v)/Abs(x.v - y.v) * x.K +
                                Abs(y.v)/Abs(x.v - y.v) * y.K))
 
     match tree:
         case (op, x, y): return _evaluate_op(op, x, y)
         case v: return _evaluate_v(v)
+
+
+
+
+if __name__ == "__main__":
+    import sys
+    print(evaluate(parse(sys.argv[1])))
